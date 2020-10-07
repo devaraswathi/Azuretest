@@ -1,0 +1,11 @@
+---
+scenarioName: GET-hello-WHEN-we-hello-endpoint-is-called-EXPECT-success-AND-flag-false.yaml
+steps:
+  - name: Example_Test_Case_To_Check_Actuator_Health
+    url: /demo/hello
+    method: GET
+    request: {}
+    verify:
+      status: 200
+      body:
+          flag: false

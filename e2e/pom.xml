@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.kroger.b2b</groupId>
+    <artifactId>b2b-3PO</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>b2b-3PO-e2e</artifactId>
+
+  <properties>
+    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>11</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <main.basedir>${project.basedir}/..</main.basedir>
+
+    <zerocode.version>1.3.24</zerocode.version>
+    <guice.version>4.2.3</guice.version>
+    <junit4.version>3.0.0-M5</junit4.version>
+
+    <maven-failsafe-plugin.version>3.0.0-M5</maven-failsafe-plugin.version>
+    <maven-antrun-plugin.version>3.0.0</maven-antrun-plugin.version>
+    <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
+
+    <docker-compose-env.skip>false</docker-compose-env.skip>
+    <bash>/bin/bash</bash>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.jsmart</groupId>
+      <artifactId>zerocode-tdd</artifactId>
+      <version>${zerocode.version}</version>
+    </dependency>
+
+    <!-- WIN10FIX: Added explicit dependency to support Windows 10 -->
+    <dependency>
+      <groupId>com.google.inject</groupId>
+      <artifactId>guice</artifactId>
+      <version>${guice.version}</version>
+    </dependency>
+
+    <!--
+      The surefire-junit4 dependency must be explicitly defined here so that the
+      transitive dependency can be resolve for an offline e2e build.
+    -->
+    <dependency>
+      <groupId>org.apache.maven.surefire</groupId>
+      <artifactId>surefire-junit4</artifactId>
+      <version>${junit4.version}</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>${maven-failsafe-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>integration-test</id>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+            <configuration>
+              <includes>
+                <include>**/*Test.java</include>
+              </includes>
+              <excludes>
+                <exclude>**/DummyTest
+                </exclude>  <!-- DummyTest does not need to run during integration tests, only needed for deployments -->
+              </excludes>
+            </configuration>
+          </execution>
+        </executions>
+        <configuration>
+          <redirectTestOutputToFile>true</redirectTestOutputToFile>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>${maven-antrun-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>compose-up</id>
+            <phase>pre-integration-test</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <skip>${docker-compose-env.skip}</skip>
+              <target name="compose-up">
+                <exec
+                  executable="docker-compose"
+                  searchpath="true"
+                  failonerror="true">
+                  <arg line="-f ../docker-compose.yml up --build --detach"/>
+                </exec>
+                <exec
+                  executable="${bash}"
+                  failonerror="true">
+                  <arg value="../checkServers.sh"/>
+                </exec>
+              </target>
+            </configuration>
+          </execution>
+          <execution>
+            <id>compose-down</id>
+            <phase>post-integration-test</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <skip>${docker-compose-env.skip}</skip>
+              <target name="compose-down">
+                <exec
+                  executable="docker-compose"
+                  searchpath="true">
+                  <arg line="-f ../docker-compose.yml down"/>
+                </exec>
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!--
+      No need for surefire to run. Only integration testing is performed via failsafe.
+      -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${maven-surefire-plugin.version}</version>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
