@@ -28,7 +28,7 @@ stages:
         mavenVersionOption: 'Default'
         mavenAuthenticateFeed: true
         effectivePomSkip: false
-        sonarQubeRunAnalysis: false
+        sonarQubeRunAnalysis: true
         pmdRunAnalysis: true
         findBugsRunAnalysis: true
         checkStyleRunAnalysis: true
