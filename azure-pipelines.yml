@@ -36,4 +36,5 @@ stages:
     - task: SonarQubePublish@4
       inputs:
         pollingTimeoutSec: '300'  
-      
+        scannerMode: 'Other'
+            
