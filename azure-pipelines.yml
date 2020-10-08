@@ -32,5 +32,8 @@ stages:
         pmdRunAnalysis: true
         findBugsRunAnalysis: true
         checkStyleRunAnalysis: true
-        
+      
+    - task: SonarQubePublish@4
+      inputs:
+        pollingTimeoutSec: '300'  
       
