@@ -312,6 +312,10 @@
           <failOnViolation>false</failOnViolation>
           <linkXRef>false</linkXRef>
           <printFailingErrors>true</printFailingErrors>
+          <rulesets>
+            <ruleset>rulesets/java/braces.xml</ruleset>
+            <ruleset>rulesets/java/naming.xml</ruleset>
+          </rulesets>
         </configuration>
         <executions>
           <execution>
@@ -333,6 +337,26 @@
             <include>**/*Test</include>
           </includes>
         </configuration>
+      </plugin>
+      <!--Code coverage plugin -->
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.8.3</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>report</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
 
       <plugin>
@@ -358,6 +382,12 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-pmd-plugin</artifactId>
         <version>3.13.0</version>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>findbugs-maven-plugin</artifactId>
+        <version>3.0.5</version>
       </plugin>
 
     </plugins>
