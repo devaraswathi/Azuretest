@@ -12,13 +12,14 @@ pool:
 steps:
 - task: SonarQubePrepare@4
   inputs:
-    SonarQube: 'tpo-sonarQube'
     scannerMode: 'Other'
+    SonarQube: 'tpo-sonarQube'
     extraProperties: |
-          # Additional properties that will be passed to the scanner, 
-          # Put one key=value per line, example:
-          # sonar.exclusions=**/*.bin
-          sonar.branch.name=main
+      # Additional properties that will be passed to the scanner, 
+      # Put one key=value per line, example:
+      # sonar.exclusions=**/*.bin
+      sonar.projectKey=b2b-3po-service
+      sonar.host.url=http://sonarqube-3po.centralus.azurecontainer.io:9000
 - task: Maven@3
   inputs:
     mavenPomFile: 'service/pom.xml'
