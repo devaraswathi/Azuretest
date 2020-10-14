@@ -19,13 +19,16 @@ stages:
       inputs:
         containerRegistry: '3POContainerRegistryURL'
         command: 'login'
-    - task: SonarQubePrepare@4
+    - task: Maven@3
       inputs:
-        SonarQube: 'sonarqube-3po'
-        scannerMode: 'Other'
-    extraProperties: 
-      # Additional properties that will be passed to the scanner, 
-      # Put one key=value per line, example:
-      # sonar.exclusions=**/*.bin
-      sonar.projectName=3potest
-      sonar.projectKey=3potest
+        mavenPomFile: 'service/pom.xml'
+        publishJUnitResults: false
+        javaHomeOption: 'JDKVersion'
+        jdkVersionOption: '1.11'
+        mavenVersionOption: 'Default'
+        mavenAuthenticateFeed: true
+        effectivePomSkip: false
+        sonarQubeRunAnalysis: false
+        pmdRunAnalysis: true
+        findBugsRunAnalysis: true
+        checkStyleRunAnalysis: true
