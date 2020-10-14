@@ -14,6 +14,8 @@ steps:
   inputs:
     SonarQube: 'tpo-sonarQube'
     scannerMode: 'Other'
+    projectKey: b2b-3po-service
+    projectName: b2b-3po-service
 - task: Maven@3
   inputs:
     mavenPomFile: 'service/pom.xml'
