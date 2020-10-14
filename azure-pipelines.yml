@@ -16,6 +16,8 @@ steps:
     scannerMode: 'Other'
     projectName: 3potest
     projectKey: 3potest
+    extraProperties: 
+      sonar.login=e90a7767a056959172627f8186e299f26b362421
 - task: Maven@3
   inputs:
     mavenPomFile: 'service/pom.xml'
