@@ -21,3 +21,4 @@ stages:
         scannerMode: 'Other'
         projectKey: 3potest
         projectName: 3potest
+    - task: SonarQubeAnalyze@4
