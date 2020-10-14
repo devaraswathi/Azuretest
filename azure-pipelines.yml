@@ -10,16 +10,6 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-- task: SonarQubePrepare@4
-  inputs:
-    scannerMode: 'Other'
-    SonarQube: 'tpo-sonarQube'
-    extraProperties: |
-      # Additional properties that will be passed to the scanner, 
-      # Put one key=value per line, example:
-      # sonar.exclusions=**/*.bin
-      sonar.projectKey=b2b-3po-service
-      sonar.host.url=http://sonarqube-3po.centralus.azurecontainer.io:9000
 - task: Maven@3
   inputs:
     mavenPomFile: 'service/pom.xml'
@@ -29,8 +19,9 @@ steps:
     testResultsFiles: '**/surefire-reports/TEST-*.xml'
     codeCoverageToolOption: 'JaCoCo'
     javaHomeOption: 'JDKVersion'
+    jdkVersionOption: 1.11
     mavenVersionOption: 'Default'
-    mavenAuthenticateFeed: false
+    mavenAuthenticateFeed: true
     effectivePomSkip: false
     sqMavenPluginVersionChoice: 'latest'
     sonarQubeRunAnalysis: true
