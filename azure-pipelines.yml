@@ -23,7 +23,8 @@ steps:
 - task: Maven@3
   inputs:
     mavenPomFile: 'service/pom.xml'
-    goals: 'clean package'
+    goals: 'clean package sonar:sonar'
+    options: '-Dsonar.projectKey=$(sonarKey) -Dsonar.host.url=$(sonarHost) -Dsonar.login=$(sonarLogin)'
     publishJUnitResults: true
     testResultsFiles: '**/surefire-reports/TEST-*.xml'
     codeCoverageToolOption: 'JaCoCo'
@@ -32,5 +33,4 @@ steps:
     mavenAuthenticateFeed: false
     effectivePomSkip: false
     sqMavenPluginVersionChoice: 'latest'
-    sonarQubeRunAnalysis: false
-- task: SonarQubeAnalyze@4
+    sonarQubeRunAnalysis: true
