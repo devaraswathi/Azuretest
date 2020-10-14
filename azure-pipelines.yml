@@ -1,160 +1,34 @@
-name: $(TeamProject)_$(BuildDefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
+# Docker
+# Build a Docker image 
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
 
 trigger:
 - main
 - feature/*
 
-variables:
-  # Application name
-  appName: 'b2b-3po-Azuretest'
-
-  # Name of image in the docker registry
-  imageRepo: 3po/$(appName)
-
-  # Dockerfile path
-  dockerfilePath: 'Dockerfile'
-
-  # Docker Registry
-  dockerRegistry: '3POContainerRegistryURL'
-
-  # Docker Registry Login Server
-  serverRegistry: '3pocontainerregistryurl.azurecr.io'
-
-  # Docker image tag
-  dockerTag: '$(Build.BuildNumber)'
-
-  # Agent VM image name
-  vmImageName: 'ubuntu-latest'
-
-  # Sonarqube server
-  sonarqubeServe: 'sonarqube-3po'
-
-  tag: '$(Build.BuildNumber)'
-
 stages:
-  #### BUILD STAGE ###
-  - stage: Build
-    displayName: Build, E2E Testing and Package
+- stage: Build
+  displayName: Build image
+  jobs:  
+  - job: Build
+    displayName: Build
     pool:
-      vmImage: $(vmImageName)
-    jobs:
-
-      # ------ Build::Build - jar and unit test ------
-      - job: Build
-        displayName: Build application
-        steps:
-          - task: CmdLine@2
-            condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
-            displayName: Get Tag
-            inputs:
-              script: |
-                VERSION_TAG=`git tag --sort=-creatordate | head -n 1`
-                echo "##vso[build.updatebuildnumber]$VERSION_TAG"
-
-          # - task: SonarQubePrepare@4
-          #   displayName: Sonarqube prepare
-          #   inputs:
-          #     SonarQube: '3POSonarqube'
-          #     scannerMode: 'Other'
-          #     extraProperties: |
-          #       sonar.projectName=$(sonarqubeProject)
-          #       sonar.projectKey=$(sonarqubeKey)
-
-          - task: Maven@3
-            displayName: Package application
-            inputs:
-              mavenPomFile: 'service/pom.xml'
-              publishJUnitResults: true
-              testResultsFiles: '**/surefire-reports/TEST-*.xml'
-              codeCoverageToolOption: 'JaCoCo'
-              codeCoverageClassFilesDirectories: 'service/src/main'
-              javaHomeOption: 'JDKVersion'
-              jdkVersionOption: '1.11'
-              mavenVersionOption: 'Default'
-              mavenAuthenticateFeed: true
-              effectivePomSkip: false
-              sonarQubeRunAnalysis: false
-
-          # - task: SonarQubePublish@4
-          #   displayName: Sonarqube publish
-          #   inputs:
-          #     pollingTimeoutSec: '300'
-
-          # Publish artifact for downstream job consumption
-          - publish: service/target
-            displayName: Publish application package
-            artifact: app_pack
-
-      # ------ Build::E2E - end to end testing ------
-      - job: E2E
-        displayName: End to End testing
-        dependsOn: Build
-        condition: succeeded()
-        steps:
-          - task: DownloadPipelineArtifact@2
-            displayName: Download application package (jar file)
-            inputs:
-              artifact: app_pack
-              patterns: '*.jar'
-              path: $(Build.SourcesDirectory)/service/target/
-
-          - task: Docker@2
-            displayName: Container registry login
-            inputs:
-              containerRegistry: $(dockerRegistry)
-              command: 'login'
-
-          - task: DockerCompose@0
-            displayName: Docker compose up
-            inputs:
-              action: Run a Docker Compose command
-              dockerComposeFile: 'docker-compose.yml'
-              dockerComposeCommand: up --build --detach
-
-          - task: Bash@3
-            displayName: Check docker container
-            inputs:
-              filepath: ./checkServers.sh
-
-          - task: Maven@3
-            displayName: Perform E2E tests
-            inputs:
-              mavenPomFile: 'e2e/pom.xml'
-              goals: '-P skip-docker-compose clean verify'
-              publishJUnitResults: false
-              javaHomeOption: 'JDKVersion'
-              jdkVersionOption: '1.11'
-              mavenVersionOption: 'Default'
-              mavenAuthenticateFeed: true
-              effectivePomSkip: true
-              sonarQubeRunAnalysis: false
-
-          - publish: e2e/target
-            displayName: Publish E2E results
-            condition: always()
-            artifact: e2e_test_results
-
-      # ------ Build::Package - dockerizes jar [master branch only] ------
-      - job: Dockerize
-        displayName: Dockerize
-        dependsOn: E2E
-        condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
-        steps:
-
-          # Pull down jar built earlier
-          - task: DownloadPipelineArtifact@2
-            displayName: Download application package (jar file)
-            inputs:
-              artifact: app_pack
-              patterns: '*.jar'
-              path: $(Build.SourcesDirectory)/service/target/
-
-          - task: Docker@2
-            displayName: Image build and push on registry
-            inputs:
-              containerRegistry: '$(dockerRegistry)'
-              repository: '$(imageRepo)'
-              command: 'buildAndPush'
-              Dockerfile: '$(dockerfilePath)'
-              tags: |
-                $(tag)
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: Docker@2
+      inputs:
+        containerRegistry: '3POContainerRegistryURL'
+        command: 'login'
+    - task: Maven@3
+      inputs:
+        mavenPomFile: 'service/pom.xml'
+        publishJUnitResults: false
+        javaHomeOption: 'JDKVersion'
+        jdkVersionOption: '1.11'
+        mavenVersionOption: 'Default'
+        mavenAuthenticateFeed: true
+        effectivePomSkip: false
+        sonarQubeRunAnalysis: false
+        pmdRunAnalysis: true
+        findBugsRunAnalysis: true
+        checkStyleRunAnalysis: true
