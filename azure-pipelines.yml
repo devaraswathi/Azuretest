@@ -15,20 +15,9 @@ stages:
     pool:
       vmImage: 'ubuntu-latest'
     steps:
-    - task: Docker@2
+    - task: SonarQubePrepare@4
       inputs:
-        containerRegistry: '3POContainerRegistryURL'
-        command: 'login'
-    - task: Maven@3
-      inputs:
-        mavenPomFile: 'service/pom.xml'
-        publishJUnitResults: false
-        javaHomeOption: 'JDKVersion'
-        jdkVersionOption: '1.11'
-        mavenVersionOption: 'Default'
-        mavenAuthenticateFeed: true
-        effectivePomSkip: false
-        sonarQubeRunAnalysis: false
-        pmdRunAnalysis: true
-        findBugsRunAnalysis: true
-        checkStyleRunAnalysis: true
+        SonarQube: 'tpo-sonarQube'
+        scannerMode: 'Other'
+        projectKey: 3potest
+        projectName: 3potest
