@@ -14,8 +14,6 @@ steps:
   inputs:
     SonarQube: 'tpo-sonarQube'
     scannerMode: 'Other'
-    projectName: b2b-3PO
-    projectKey: b2b-3PO
     extraProperties: 
       sonar.login=e90a7767a056959172627f8186e299f26b362421
 - task: Maven@3
@@ -30,5 +28,4 @@ steps:
     mavenAuthenticateFeed: false
     effectivePomSkip: false
     sqMavenPluginVersionChoice: 'latest'
-- task: SonarQubeAnalyze@4
-    
+    sonarQubeRunAnalysis: true
