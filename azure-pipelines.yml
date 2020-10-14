@@ -15,8 +15,6 @@ steps:
     SonarQube: 'tpo-sonarQube'
     scannerMode: 'Other'
     extraProperties: 
-      sonar.login=a3aaf3f40500119786c53806c31dafcb2b4b66bb
-      sonar.branch.name=$CI_COMMIT_REF_NAME
 - task: Maven@3
   inputs:
     mavenPomFile: 'service/pom.xml'
