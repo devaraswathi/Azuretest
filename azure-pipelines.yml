@@ -14,6 +14,11 @@ steps:
   inputs:
     SonarQube: 'tpo-sonarQube'
     scannerMode: 'Other'
+    extraProperties: |
+          # Additional properties that will be passed to the scanner, 
+          # Put one key=value per line, example:
+          # sonar.exclusions=**/*.bin
+          sonar.branch.name=main
 - task: Maven@3
   inputs:
     mavenPomFile: 'service/pom.xml'
